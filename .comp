@@ -1,0 +1,10 @@
+{
+    "main": "main.py",
+    "packets": [
+        "color.py", "functions.py"
+    ],
+    "build": {
+        "dir": "build",
+        "file": "bundle.py"
+    }
+}

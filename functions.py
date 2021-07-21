@@ -62,21 +62,21 @@ def relative_number_ratio_by_rect(rgb: np.ndarray, red_range: ColorRange, black_
             (x3, y3, w3, h3) = cv2.boundingRect(cnt3)
             yield ((x3+x, y3+y, w3, h3), rectangle_area/area3)
 
-if __name__ == "__main__":
-    red_range = ColorRange(Color(348/2,215,227), Color(368/2,235,247))
-    white_range = ColorRange(Color(0, 0, 240), Color(10/2, 10, 255))
-    black_range = ColorRange(Color(0, 0, 0), Color(10/2, 10, 10))
+# if __name__ == "__main__":
+#     red_range = ColorRange(Color(348/2,215,227), Color(368/2,235,247))
+#     white_range = ColorRange(Color(0, 0, 240), Color(10/2, 10, 255))
+#     black_range = ColorRange(Color(0, 0, 0), Color(10/2, 10, 10))
 
-    img = cv2.imread('d:/test/images/numbers_test.png')
-    draw = img.copy()
-    l = list(relative_number_ratio_by_frame(img, red_range, white_range, black_range))
-    l.sort(key=lambda r: r[1])
-    _, ((x, y, w, h), ratio), _, *other = l
-    l2 = list(relative_number_ratio_by_rect(img, red_range, black_range))
-    l2.sort(key=lambda r: r[1])
-    _, ((x2, y2, w2, h2), ratio2), _, *other = l2
-    print(ratio, ratio2)
-    cv2.rectangle(draw, (x, y), (x+w, h+y), (255, 0, 0), 2)
-    cv2.rectangle(draw, (x2, y2), (x2+w2, h2+y2), (255, 0, 0), 2)
-    cv2.imshow('draw', draw)
-    cv2.waitKey(0)
+#     img = cv2.imread('d:/test/images/numbers_test.png')
+#     draw = img.copy()
+#     l = list(relative_number_ratio_by_frame(img, red_range, white_range, black_range))
+#     l.sort(key=lambda r: r[1])
+#     _, ((x, y, w, h), ratio), _, *other = l
+#     l2 = list(relative_number_ratio_by_rect(img, red_range, black_range))
+#     l2.sort(key=lambda r: r[1])
+#     _, ((x2, y2, w2, h2), ratio2), _, *other = l2
+#     print(ratio, ratio2)
+#     cv2.rectangle(draw, (x, y), (x+w, h+y), (255, 0, 0), 2)
+#     cv2.rectangle(draw, (x2, y2), (x2+w2, h2+y2), (255, 0, 0), 2)
+#     cv2.imshow('draw', draw)
+#     cv2.waitKey(0)
