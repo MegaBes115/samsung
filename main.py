@@ -119,6 +119,7 @@ if __name__ == "__main__":
     #2nd part#
     ##########
     # Bonk red buoy
+    auv.set_rgb_color(255, 0, 0)
     color = ColorRange(Color((170, 20, 20), (5, 255, 255), "red"))
     buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
     begin_finding_time = time()
@@ -138,6 +139,7 @@ if __name__ == "__main__":
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
     # Bonk yellow buoy
+    auv.set_rgb_color(255, 255, 0)
     color = ColorRange(Color((25, 20, 20), (60, 255, 255), "yellow"))
     buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
     begin_finding_time = time()
@@ -157,6 +159,7 @@ if __name__ == "__main__":
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
     # Bonk green buoy
+    auv.set_rgb_color(0, 255, 0)
     color = ColorRange(Color((60, 20, 20), (92.5, 255, 255), "green"))
     buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
     begin_finding_time = time()
@@ -175,6 +178,3 @@ if __name__ == "__main__":
     auv.set_motor_power(0,-100) # ↓
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
-    ############
-    # 3rd step #
-    ############
