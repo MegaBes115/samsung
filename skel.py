@@ -9,7 +9,7 @@ from scipy import integrate
 import pymurapi as mur
 
 
-def find_gates_err(image: np.ndarray) -> Tuple(float, bool): #TODO: This thing finds error between needed position of gates' middlepoint and its current position
+def find_gates_err(image: np.ndarray) -> Tuple(float, bool):
     """Finds error between gates' middlepoint position and center of videofeed
 
     Args:
@@ -44,7 +44,7 @@ def get_auv_image(auv: mur.auv) -> np.ndarray:
     """
     pass
 
-def spot_marker(image: np.ndarray) -> bool:
+def find_marker(image: np.ndarray) -> bool:
     """Find marker, green or blue
 
     Args:
@@ -63,16 +63,39 @@ def circle_marker(green: bool):
     """
 
     pass
+
+def find_buoys(image: np.ndarray) -> Tuple[int, int, int]:
+    """Finds buoys
+
+    Args:
+        image (np.ndarray): Image input, not cropped
+
+    Returns:
+        Tuple[int, int, int]: Buoys' position: 1: red buoy, 2: yellow buoy, 3: green buoy
+    """
 if __name__ == "__main__":
     auv = mur.mur_init() # Init
     err, found = find_gates_err(get_auv_image(auv)) # Find gates
     if found:
         while not stabilize_yaw(err, 1, 50) and found:
-            err, found = find_gates_err(get_auv_image(auv)) # While gates are found, go in between
+            err, found = find_gates_err(get_auv_image(auv)) # While gates are found, go in the middle 
     auv.set_motor_power(0,100) # ↓
     auv.set_motor_power(1,100) # Pass gates
-    sleep(2)                   # ↑
-    circle_marker(spot_marker(get_auv_image(auv)))
+    sleep(2)                   # ↑ #TODO: Adjust time
+    circle_marker(find_marker(get_auv_image(auv)))
+    err, found = find_gates_err(get_auv_image(auv)) # Backwards gates pass
+    if found:
+        while not stabilize_yaw(err, 1, 50) and found:
+            err, found = find_gates_err(get_auv_image(auv)) # While gates are found, go in the middle 
+    auv.set_motor_power(0,75)  # ↓
+    auv.set_motor_power(1,100) # Turn after gates
+    sleep(2)                   # ↑ #TODO: Adjust time and power
+    auv.set_motor_power(0,90)  # ↓
+    auv.set_motor_power(1,100) # Translation between 1st and 2nd parts
+    sleep(2)                   # ↑ #TODO: Adjust time and power        
     
-        
-        
+    ##########
+    #2nd part#
+    ##########
+
+    
