@@ -1,7 +1,7 @@
 import colorsys
-from time import sleep
+from time import sleep, time
 from typing import Tuple, Union
-
+from functions import*
 import cv2 as cv
 import numpy as np
 from scipy import integrate
@@ -64,16 +64,37 @@ def circle_marker(green: bool):
 
     pass
 
-def find_buoys(image: np.ndarray) -> Tuple[int, int, int]:
+def find_buoy_error(image: np.ndarray, range: ColorRange) -> Tuple(float, bool, float):
     """Finds buoys
 
     Args:
         image (np.ndarray): Image input, not cropped
+        range (ColorRange): Color range of buoy which is to be found
 
     Returns:
-        Tuple[int, int, int]: Buoys' position: 1: red buoy, 2: yellow buoy, 3: green buoy
+        float: Error between center of feed and buoy's x position
+        bool: True if found
+        float: Area of found buoy
     """
+
+def bonk_buoy(color: ColorRange):
+    """Bonk selected buoy
+
+    Args:
+        color (ColorRange): color of buoy, which is to be bonked
+    """
+    success = True
+    area = 0
+    while success and area > 50000 and not stabilize_yaw(buoy_error, 0, 50):
+        buoy_error, success, area = find_buoy_error(get_auv_image(auv)) # While buoy is found, move to it
+    auv.set_motor_power(0,100) # ↓
+    auv.set_motor_power(1,100) # Bonk buoy
+    sleep(2)                   # ↑ #TODO: Adjust time
+    
 if __name__ == "__main__":
+    ##########
+    #1st part#
+    ##########
     auv = mur.mur_init() # Init
     err, found = find_gates_err(get_auv_image(auv)) # Find gates
     if found:
@@ -85,7 +106,7 @@ if __name__ == "__main__":
     circle_marker(find_marker(get_auv_image(auv)))
     err, found = find_gates_err(get_auv_image(auv)) # Backwards gates pass
     if found:
-        while not stabilize_yaw(err, 1, 50) and found:
+        while found and not stabilize_yaw(err, .1, 50):
             err, found = find_gates_err(get_auv_image(auv)) # While gates are found, go in the middle 
     auv.set_motor_power(0,75)  # ↓
     auv.set_motor_power(1,100) # Turn after gates
@@ -97,5 +118,60 @@ if __name__ == "__main__":
     ##########
     #2nd part#
     ##########
-
-    
+    # Bonk red buoy
+    color = ColorRange(Color((170, 20, 20), (5, 255, 255), "red"))
+    buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
+    begin_finding_time = time()
+    while not success:
+        buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
+        if time() - begin_finding_time < 5:
+            auv.set_motor_power(0,-20) # ↓
+            auv.set_motor_power(1,+20) # Finding buoy, turning left
+        elif 10 > time() - begin_finding_time > 5:
+            auv.set_motor_power(0,+20) # ↓
+            auv.set_motor_power(1,-20) # Finding buoy, turning right
+        else:
+            # die
+            pass
+    bonk_buoy(color)
+    auv.set_motor_power(0,-100) # ↓
+    auv.set_motor_power(1,-100) # Unbonk buoy
+    sleep(5)                    # ↑ #TODO: Adjust time
+    # Bonk yellow buoy
+    color = ColorRange(Color((25, 20, 20), (60, 255, 255), "yellow"))
+    buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
+    begin_finding_time = time()
+    while not success:
+        buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
+        if time() - begin_finding_time < 5:
+            auv.set_motor_power(0,-20) # ↓
+            auv.set_motor_power(1,+20) # Finding buoy, turning left
+        elif 10 > time() - begin_finding_time > 5:
+            auv.set_motor_power(0,+20) # ↓
+            auv.set_motor_power(1,-20) # Finding buoy, turning right
+        else:
+            # die
+            pass
+    bonk_buoy(color)
+    auv.set_motor_power(0,-100) # ↓
+    auv.set_motor_power(1,-100) # Unbonk buoy
+    sleep(5)                    # ↑ #TODO: Adjust time
+    # Bonk green buoy
+    color = ColorRange(Color((60, 20, 20), (92.5, 255, 255), "green"))
+    buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
+    begin_finding_time = time()
+    while not success:
+        buoy_error, success, _ = find_buoy_error(get_auv_image(auv), color)
+        if time() - begin_finding_time < 5:
+            auv.set_motor_power(0,-20) # ↓
+            auv.set_motor_power(1,+20) # Finding buoy, turning left
+        elif 10 > time() - begin_finding_time > 5:
+            auv.set_motor_power(0,+20) # ↓
+            auv.set_motor_power(1,-20) # Finding buoy, turning right
+        else:
+            # die
+            pass
+    bonk_buoy(color)
+    auv.set_motor_power(0,-100) # ↓
+    auv.set_motor_power(1,-100) # Unbonk buoy
+    sleep(5)                    # ↑ #TODO: Adjust time
