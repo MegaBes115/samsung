@@ -175,3 +175,6 @@ if __name__ == "__main__":
     auv.set_motor_power(0,-100) # ↓
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
+    ############
+    # 3rd step #
+    ############
