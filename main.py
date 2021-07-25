@@ -46,7 +46,7 @@ def get_auv_image(auv: mur.auv) -> np.ndarray:
     pass
 
 def find_marker(image: np.ndarray) -> bool:
-    """Find marker, green or blue
+    """Finds marker, green or blue
 
     Args:
         image (np.ndarray): Image input, not cropped
@@ -57,7 +57,7 @@ def find_marker(image: np.ndarray) -> bool:
     pass
 
 def circle_marker(green: bool):
-    """Goes around marker as in the reglament
+    """Goes around marker by reglament
 
     Args:
         green (bool): True if marker is green
@@ -66,7 +66,7 @@ def circle_marker(green: bool):
     pass
 
 def find_buoy_error(image: np.ndarray, range: ColorRange) -> Tuple[float, bool, float]:
-    """Finds buoys
+    """Finds error between selected buoy's center and videofeed center
 
     Args:
         image (np.ndarray): Image input, not cropped
