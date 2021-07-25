@@ -34,11 +34,12 @@ def stabilize_yaw(target: float, possible_err: float, additional_fwd: float) -> 
     pass
 
 
-def get_auv_image(auv: mur.auv) -> np.ndarray:
+def get_auv_image(auv: mur.auv, hsv=True: bool) -> np.ndarray:
     """Returns camera feed in numpy.ndarray
 
     Args:
         auv (mur.auv): AUV, which camera is to be read
+        hsv (bool): True if returned image is needed to be in HSV colorspace 
     Returns:
         np.ndarray: Image
     """
@@ -118,6 +119,8 @@ if __name__ == "__main__":
     ##########
     #2nd part#
     ##########
+    
+    
     # Bonk red buoy
     auv.set_rgb_color(255, 0, 0)
     color = ColorRange(Color((170, 20, 20), (5, 255, 255), "red"))
@@ -138,6 +141,8 @@ if __name__ == "__main__":
     auv.set_motor_power(0,-100) # ↓
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
+    
+    
     # Bonk yellow buoy
     auv.set_rgb_color(255, 255, 0)
     color = ColorRange(Color((25, 20, 20), (60, 255, 255), "yellow"))
@@ -158,6 +163,8 @@ if __name__ == "__main__":
     auv.set_motor_power(0,-100) # ↓
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
+
+
     # Bonk green buoy
     auv.set_rgb_color(0, 255, 0)
     color = ColorRange(Color((60, 20, 20), (92.5, 255, 255), "green"))
@@ -178,3 +185,8 @@ if __name__ == "__main__":
     auv.set_motor_power(0,-100) # ↓
     auv.set_motor_power(1,-100) # Unbonk buoy
     sleep(5)                    # ↑ #TODO: Adjust time
+    ##########
+    #3rd part#
+    ##########
+    ratio = relative_number_ratio_by_frame(get_auv_image(auv, False), ColorRange(Color(170, 20, 20), Color(5, 255, 255)), ColorRange(Color(0, 0, 191.25), Color(180, 25.5, 255)), ColorRange(Color(0, 0, 0), Color(255, 255, 63.75)))
+    
