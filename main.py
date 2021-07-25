@@ -8,8 +8,9 @@ from scipy import integrate
 
 import pymurapi as mur
 
+#TODO: Все функции, кроме bonk_buoy()
 
-def find_gates_err(image: np.ndarray) -> Tuple(float, bool):
+def find_gates_err(image: np.ndarray) -> Tuple[float, bool]:
     """Finds error between gates' middlepoint position and center of videofeed
 
     Args:
@@ -64,7 +65,7 @@ def circle_marker(green: bool):
 
     pass
 
-def find_buoy_error(image: np.ndarray, range: ColorRange) -> Tuple(float, bool, float):
+def find_buoy_error(image: np.ndarray, range: ColorRange) -> Tuple[float, bool, float]:
     """Finds buoys
 
     Args:
@@ -85,7 +86,8 @@ def bonk_buoy(color: ColorRange):
     """
     success = True
     area = 0
-    while success and area > 50000 and not stabilize_yaw(buoy_error, 0, 50):
+    buoy_error = 0
+    while success and area < 50000 and not stabilize_yaw(buoy_error, 0, 50):
         buoy_error, success, area = find_buoy_error(get_auv_image(auv)) # While buoy is found, move to it
     auv.set_motor_power(0,100) # ↓
     auv.set_motor_power(1,100) # Bonk buoy
