@@ -1,4 +1,6 @@
 import colorsys
+import sys
+import os
 import imutils
 from time import sleep, time
 from typing import Tuple, Union
@@ -74,7 +76,7 @@ def four_point_transform(image, pts):
     return warped
 
 
-def find_numbers_rect(image: np.ndarray) -> list[list[np.ndarray, ]]:
+def find_numbers_rect(image: np.ndarray) -> list[np.ndarray, np.ndarray]:
 
              # Чтение изображения, создание оттенков серого, размытие по Гауссу, расширение, обнаружение контуров
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -89,7 +91,7 @@ def find_numbers_rect(image: np.ndarray) -> list[list[np.ndarray, ]]:
     
     if len(cnts) > 0:
         for c in cnts:
-            if cv2.contourArea(c) > 200:
+            if cv2.contourArea(c) > 50:
                             # Приблизительный контур
                 peri = cv2.arcLength(c, True)
                 approx = cv2.approxPolyDP(c, 0.02 * peri, True)
@@ -206,7 +208,8 @@ if __name__ == "__main__":
     #1st part#
     ##########
     #auv = mur.mur_init() # Init
-    image = cv2.imread(r"/home/mango/repos/samsung_main/test/images/numbers_test_hard.png")
+    print(os.getcwd() + r"/test/images/numbers_test_hard.png" if not "win" in sys.platform else os.getcwd() + "\\test\\images\\numbers_test_hard")
+    image = cv2.imread(os.getcwd() + r"/test/images/numbers_test_hard.png" if not "win" in sys.platform else os.getcwd() + "\\test\\images\\numbers_test_hard.png")
     image_draw = image.copy()
     a = 0
     nums: list[list[np.ndarray, np.ndarray]] = find_numbers_rect(image)
@@ -225,10 +228,11 @@ if __name__ == "__main__":
         for cnt in cnts:
             if cv2.contourArea(cnt) > 50:
                 filtered_cnts.append(cnt)
-        cv2.drawContours(transformed, filtered_cnts, -1, (0,255,0), 2, cv2.LINE_AA)
+        cv2.drawContours(transformed, filtered_cnts, -1, (0,255,0), 2, cv2.LINE_4)
         num = cv2.contourArea(cnts[0])
         cv2.imshow((str(num_size) + "->" + str(min_size) + ", area=" + str(num)) if num_size != min_size else "minarea, area=" + str(num), transformed)
-        cv2.drawContours(image_draw, original_contour, -1, (0,255,0), 2, cv2.LINE_AA)
+        cv2.drawContours(image_draw, original_contour, -1, (0,255,0), 4, cv2.LINE_4)
+        
     cv2.imshow("original_image_detected", image_draw)
     cv2.waitKey()
     # err, found = find_gates_err(get_auv_image(auv)) # Find gates
