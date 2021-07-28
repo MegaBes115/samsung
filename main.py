@@ -207,13 +207,15 @@ if __name__ == "__main__":
     ##########
     #auv = mur.mur_init() # Init
     image = cv2.imread(r"/home/mango/repos/samsung_main/test/images/numbers_test_hard.png")
+    image_draw = image.copy()
     a = 0
-    nums: list[np.ndarray] = find_numbers_rect(image)
+    nums: list[list[np.ndarray, np.ndarray]] = find_numbers_rect(image)
     nums.sort(key=lambda r: r[0].size)
     min_area_img = nums[0][0]
     min_size = (min_area_img.shape[0], min_area_img.shape[1])
     for i in nums:
         num_size = (i[0].shape[0], i[0].shape[1])
+        original_contour = i[1]
         resize = np.divide(min_size, num_size)
         transformed = cv2.resize(i[0].copy(), None, None, *resize, cv2.INTER_CUBIC)
         generator = relative_number_ratio_by_frame(transformed, red_range, white_range, black_range)
@@ -226,6 +228,8 @@ if __name__ == "__main__":
         cv2.drawContours(transformed, filtered_cnts, -1, (0,255,0), 2, cv2.LINE_AA)
         num = cv2.contourArea(cnts[0])
         cv2.imshow((str(num_size) + "->" + str(min_size) + ", area=" + str(num)) if num_size != min_size else "minarea, area=" + str(num), transformed)
+        cv2.drawContours(image_draw, original_contour, -1, (0,255,0), 2, cv2.LINE_AA)
+    cv2.imshow("original_image_detected", image_draw)
     cv2.waitKey()
     # err, found = find_gates_err(get_auv_image(auv)) # Find gates
     # if found:
