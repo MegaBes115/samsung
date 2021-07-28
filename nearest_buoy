@@ -1,0 +1,56 @@
+import cv2 as cv
+
+# import pymurapi as mur
+
+# auv = mur.mur_init()
+
+hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+min_red = (10, 50, 50)
+max_red = (170, 255, 255)
+min_yellow = (20, 50, 50)
+max_yellow = (40, 255, 255)
+min_green = (50, 50, 50)
+max_green = (70, 255, 255)
+
+Founded_points = 1
+
+def find_contour(hsv_image):
+    hsv_red = cv.inRange(hsv_image, min_red, max_red)
+    hsv_yellow = cv.inRange(hsv_image, min_yellow, max_yellow)
+    hsv_green = cv.inRange(hsv_image, min_green, max_green)
+    Max_color = 0
+    Red_contours, _ = cv.findContours(hsv_red, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    Yellow_contours, _ = cv.findContours(hsv_yellow, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    Green_contours, _ = cv.findContours(hsv_green, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+
+    red_list = []
+    for contour in Red_contours:
+        red_list.append([cv.contourArea(contour), contour])
+
+    yellow_list = []
+    for contour in Yellow_contours:
+        yellow_list.append([cv.contourArea(contour), contour])
+
+    green_list = []
+    for contour in Green_contours:
+        green_list.append([cv.contourArea(contour), contour])
+
+    red_list.sort()
+    yellow_list.sort()
+    green_list.sort()
+    if red_list[0, 0] > yellow_list[0, 0] and red_list[0, 0] > green_list[0, 0]:
+        Max_contour = red_list[0, 1]
+        Max_color = 1
+    elif yellow_list[0, 0] > red_list[0, 0] and yellow_list[0, 0] > green_list[0, 0]:
+        Max_contour = yellow_list[0, 1]
+        Max_color = 2
+    else:
+        Max_contour = green_list[0, 1]
+        Max_color = 3
+    if Max_contour < 300:
+        Max_contour = None
+        Max_color = None
+    cv.drawContours(hsv_image,Max_contour,-1, (125, 125, 125), 2)
+    cv.imshow("Hsv mask", hsv_image)
+    cv.waitKey()
+    return Max_color, Max_contour
