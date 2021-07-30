@@ -1,5 +1,22 @@
 import json
 import os.path, os
+from typing import List
+
+def exclude_imports(text: str, packets: List[str]):
+    t2 = ""
+    for line in text.splitlines():
+        splited = line.split()
+        if len(splited) >= 2:
+            if splited[0] == 'from':
+                if splited[1] in packets: continue
+            elif splited[0] == 'import':
+                if splited[1] in packets: continue
+        for p in packets:
+            indx = line.find(p + '.')
+            if indx <= 0 or line[indx-1] in "+-=*/( ":
+                line = line.replace(p + '.', '') 
+        t2 += line + '\n'
+    return t2
 
 with open("./.comp", 'r', encoding='utf-8') as file:
     params = json.loads(file.read())
@@ -24,14 +41,14 @@ text += """
 for filename in params['packets']:
     text += """##############################################################
 # """ + filename + ' file content:\n'
-    with open(filename, 'r', encoding='utf-8') as file:
-        text += file.read() + '\n\n'
+    with open(filename + '.py', 'r', encoding='utf-8') as file:
+        text += exclude_imports(file.read(), params["packets"]) + '\n\n'
 
 text += """##############################################################
 # """ + params["main"] + """ (MAIN) file content:
 """
 with open(params["main"], 'r', encoding='utf-8') as file:
-    text += file.read() + '\n'
+    text += exclude_imports(file.read(), params["packets"]) + '\n'
 
 build_file_path = params['build']['dir'] + '/' + params['build']['file']
 if not os.path.exists(build_file_path):

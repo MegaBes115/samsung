@@ -19,3 +19,6 @@ class ColorRange:
 
         self.min_color.name = name
         self.max_color.name = name
+
+    def to_tuple(self) -> Tuple[Tuple, Tuple]:
+        return (self.min_color.to_tuple(), self.max_color.to_tuple())
