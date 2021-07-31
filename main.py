@@ -4,7 +4,6 @@ from typing import Tuple, Union
 from functions import*
 import cv2 as cv
 import numpy as np
-from scipy import integrate
 
 import pymurapi as mur
 
@@ -54,7 +53,7 @@ def stabilize_yaw(target: float, possible_err: float, additional_fwd: float) -> 
     pass
 
 
-def get_auv_image(auv: mur.auv, hsv=True: bool) -> np.ndarray:
+def get_auv_image(auv: mur.auv, hsv: bool=True) -> np.ndarray:
     """Returns camera feed in numpy.ndarray
 
     Args:
@@ -107,8 +106,8 @@ def circle_marker(green: bool, auv: mur.auv.Auv):
     Args:
         green (bool): True if marker is green
     """ #TODO: adjust time & power
-    lmt = int(green)
-    rmt = int(not green)
+    lmt = green
+    rmt = -green
     auv.set_motor_power(lmt, 85)
     auv.set_motor_power(rmt, 100)
     sleep(1)
