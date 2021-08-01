@@ -1,0 +1,35 @@
+import cv2 as cv
+import pymurapi as mur
+import numpy as np
+from time import sleep
+
+auv = mur.mur_init()
+
+mur_view = auv.get_videoserver()
+
+cap = cv.VideoCapture(0)
+
+Red_min = [170, 20, 20]
+Red_max = [10, 255, 255]
+Yellow_min = [50, 20, 20]
+Yellow_max = [70, 255, 255]
+Green_min = [110, 20, 20]
+Green_max = [130, 255, 255]
+def find_center(image,min_color, max_color):
+    # Подаётся оригинальное изображение в качестве параметра функции  и hsv пределы
+    # функция возвращает переменную centroid_x - координату x буя, если он его не видит, то в переменную записывается "Untitled"
+    hsv_image = cv.cvtColor(image, cv.COLOR_BGR2HSV)
+    binar_image = cv.inRange(hsv_image, min_color, max_color)
+    Color_contours = cv.findContours(binar_image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    cv.drawContours(binar_image, Color_contours, -1, (0, 255, 0), 3)
+    cv.imshow(binar_image, image)
+    color_list = []
+    for contour in Color_contours:
+        color_list.append([cv.contourArea(contour), contour])
+    color_list.sort()
+    if red_list[0, 0] > 300:
+        M = cv.moments(red_list[0, 0])
+        centroid_x = int(M["m10"]/M["m00"]) - 320
+    else:
+        centroid_x = "Untitled"
+    return centroid_x
