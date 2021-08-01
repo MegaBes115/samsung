@@ -1,11 +1,10 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, TypeVar, Union
 import cv2
 import numpy as np
 from color import Color, ColorRange
 import time as t
 import pymurapi as mur
 
-# auv = mur.mur_init()
 
 class PD:
     _kp = 0.0
@@ -176,16 +175,17 @@ def simulator_get_front_frame_func(auv):
 def simulator_get_bottom_frame_func(auv):
     return auv.get_image_bottom()
 
-def clamp(v: float, min_v: float, max_v: float) -> float: 
+T = TypeVar('T')
+def clamp(v: T, min_v: T, max_v: T) -> T: 
     """Clamp value between two ranges.
 
     Args:
-        v (float): Value
-        min_v (float): Min value
-        max_v (float): Max value
+        v (T): Value
+        min_v (T): Min value
+        max_v (T): Max value
 
     Returns:
-        float: Clamped value
+        T: Clamped value
     """
     if v > max_v:
         return max_v

@@ -4,7 +4,6 @@ from typing import Tuple, Union
 from functions import*
 import cv2 as cv
 import numpy as np
-from scipy import integrate
 
 import pymurapi as mur
 
@@ -112,8 +111,8 @@ def circle_marker(green: bool, auv: mur.auv.Auv):
     Args:
         green (bool): True if marker is green
     """ #TODO: adjust time & power
-    lmt = int(green)
-    rmt = int(not green)
+    lmt = green
+    rmt = -green
     auv.set_motor_power(lmt, 85)
     auv.set_motor_power(rmt, 100)
     sleep(1)
