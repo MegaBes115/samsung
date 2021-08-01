@@ -54,7 +54,7 @@ def stabilize_yaw(err: float, additional_fwd: float, live: bool, pdreg: PDReg, a
     auv.set_motor_power(1, additional_fwd - err)
 
 
-def get_auv_image(auv: mur.auv.Auv, hsv: bool = True) -> np.ndarray:
+def get_auv_image(auv: mur.auv.Auv, hsv=True: bool) -> np.ndarray:
     """Returns camera feed in numpy.ndarray
 
     Args:
@@ -154,11 +154,11 @@ def bonk_buoy(color: ColorRange):
     success = True
     area = 0
     buoy_error = 0
-    while success and area > 50000 and not stabilize_yaw(buoy_error, 0, 50):
-        buoy_error, success, area = find_buoy_error(get_auv_image(auv))  # While buoy is found, move to it
-    auv.set_motor_power(0, 100)  # ↓
-    auv.set_motor_power(1, 100)  # Bonk buoy
-    sleep(2)                    # ↑ #TODO: Adjust time
+    while success and area < 50000 and not stabilize_yaw(buoy_error, 0, 50):
+        buoy_error, success, area = find_buoy_error(get_auv_image(auv)) # While buoy is found, move to it
+    auv.set_motor_power(0,100) # ↓
+    auv.set_motor_power(1,100) # Bonk buoy
+    sleep(2)                   # ↑ #TODO: Adjust time
 
 
 if __name__ == "__main__":
