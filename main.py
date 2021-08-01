@@ -54,7 +54,7 @@ def stabilize_yaw(target: float, possible_err: float, additional_fwd: float) -> 
     pass
 
 
-def get_auv_image(auv: mur.auv, hsv=True: bool) -> np.ndarray:
+def get_auv_image(auv: mur.auv.Auv, hsv=True: bool) -> np.ndarray:
     """Returns camera feed in numpy.ndarray
 
     Args:
@@ -63,7 +63,12 @@ def get_auv_image(auv: mur.auv, hsv=True: bool) -> np.ndarray:
     Returns:
         np.ndarray: Image
     """
-    pass
+    if isinstance(auv, mur.simulator.Simulator):
+        return auv.get_image_bottom() if not hsv else cv2.cvtColor(auv.get_image_bottom(), cv2.COLOR_BGR2HSV)
+    else:
+        cam = cv2.VideoCapture(0)
+        r, frame = cam.read()
+        return frame if not hsv else cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
 
 def find_marker(image: np.ndarray, blue: ColorRange, green: ColorRange) -> bool:
@@ -149,7 +154,7 @@ def bonk_buoy(color: ColorRange):
     success = True
     area = 0
     buoy_error = 0
-    while success and area > 50000 and not stabilize_yaw(buoy_error, 0, 50):
+    while success and area < 50000 and not stabilize_yaw(buoy_error, 0, 50):
         buoy_error, success, area = find_buoy_error(get_auv_image(auv)) # While buoy is found, move to it
     auv.set_motor_power(0,100) # ↓
     auv.set_motor_power(1,100) # Bonk buoy
