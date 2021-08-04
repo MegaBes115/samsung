@@ -25,12 +25,12 @@ def find_buoy(min_color, max_color):
     global X
     for contour in Color_contours:
         color_list.append([cv.contourArea(contour), contour])
-        M = cv.moments(cv.contourArea)
+        M = cv.moments(contour)
         X = int(M["m10"] / M["m00"]) - 320
     color_list.sort()
-    if color_list[0, 0] hierarchy > 300:
+    if  > 300:
         Color_find_flag = 1
-    if Color_find_flag = 1:
+    if Color_find_flag == 1:
         auv.set_motor_power(0, 70 - X)
         auv.set_motor_power(1, 70 + X)
         if color_list[0, 0] == 0:
