@@ -1,0 +1,118 @@
+import cv2 as cv
+import pymurapi as mur
+
+auv = mur.mur_init()
+
+auv.set_motor_power(2, 5)
+auv.set_motor_power(3, 5)
+
+Red_min = (0, 20, 20)
+Red_max = (15, 255, 255)
+Yellow_min = (20, 50, 50)
+Yellow_max = (50, 255, 255)
+Green_min = (60, 20, 20)
+Green_max = (80, 255, 255)
+Purple = (140, 255, 255)
+X = 0
+def find_buoy():
+    # Подаётся оригинальное изображение в качестве параметра функции
+    # Функция возвращает переменную X - координату x буя, если буя не найдено - возвращается False
+    Max_contour = defind_buoy()
+    if Max_contour:
+        for contour in Max_contour:
+            if abs(cv.contourArea(contour)) > 100:
+                M = cv.moments(contour)
+                try:
+                    X = (int(M["m10"]/M["m00"]))
+                except ZeroDivisionError:
+                    pass
+            #     auv.set_motor_power(0, 40 - X)
+            #     auv.set_motor_power(1, 40 + X)
+            #     Color_counter = 1
+            # elif Color_counter == 1 or abs(cv.contourArea(contour)) > 5000:
+            #     # Color_counter = 0
+    cv.imshow("binar_image", cap)
+    if len(color_list) > 0:
+        try:
+            color_list.sort()
+            cv.drawContours(cap, color_list[0][1],-1,(255,0,0),1)
+        except ValueError:
+            pass
+        return X
+    else:
+        return False
+
+def keep_x(yaw:float, X, additional_fwd: float = 0, time_to_keep: float = 0) -> None:
+    """Keeps yaw by X target value.
+    Args:
+        yaw (float): Yaw to keep.
+        additional_fwd (float): Forward thrust speed.
+    """
+    global auv, yaw_reg
+    def subkeep():
+        err = X - yaw
+        error = clamp(yaw_reg.compute(err), -100, 100)
+        auv.set_motor_power(THRUSTER_LEFT, (additional_fwd - error) * THRUSTER_DIRECTION_LEFT)
+        auv.set_motor_power(THRUSTER_RIGHT, (additional_fwd + error) * THRUSTER_DIRECTION_RIGHT)
+
+    if time_to_keep == 0:
+        return subkeep()
+    timer = time.time() + time_to_keep
+    while time.time() < timer:
+        subkeep()
+        time.sleep(0.01)
+        frame = get_auv_image()
+        show(frame, 1)
+
+def defind_buoy():
+    cap = auv.get_image_front()
+    hsv_image = cv.cvtColor(cap, cv.COLOR_BGR2HSV)
+    hsv_red = cv.inRange(hsv_image, min_red, max_red)
+    hsv_yellow = cv.inRange(hsv_image, min_yellow, max_yellow)
+    hsv_green = cv.inRange(hsv_image, min_green, max_green)
+    Max_color = 0
+    Red_contours, _ = cv.findContours(hsv_red, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    Yellow_contours, _ = cv.findContours(hsv_yellow, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    Green_contours, _ = cv.findContours(hsv_green, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+
+    red_list = []
+    for contour in Red_contours:
+        red_list.append([cv.contourArea(contour), contour])
+
+    yellow_list = []
+    for contour in Yellow_contours:
+        yellow_list.append([cv.contourArea(contour), contour])
+
+    green_list = []
+    for contour in Green_contours:
+        green_list.append([cv.contourArea(contour), contour])
+
+    red_list.sort()
+    yellow_list.sort()
+    green_list.sort()
+
+    if red_list[0, 0] > yellow_list[0, 0] and red_list[0, 0] > green_list[0, 0]:
+        Max_contour = red_list[0, 1]
+        Max_color = "Red"
+    elif yellow_list[0, 0] > red_list[0, 0] and yellow_list[0, 0] > green_list[0, 0]:
+        Max_contour = yellow_list[0, 1]
+        Max_color = "Yellow"
+    else:
+        Max_contour = green_list[0, 1]
+        Max_color = "Green"
+    if Max_contour < 100:
+        Max_contour = "Unknown"
+        Max_color = "No contour"
+    return Max_contour, Max_color
+
+def to_the_buoy():
+    #Функция принимает hsv пределы в качестве аргументов
+    #Функция возвращает площадь конура
+    x = find_buoy()
+    if x:
+        keep_x(x,320,30,5)
+    cv.waitKey(1)
+
+to_the_buoy(Red_min, Red_max)
+to_the_buoy(Yellow_min, Yellow_max)
+to_the_buoy(Green_min, Green_max)
