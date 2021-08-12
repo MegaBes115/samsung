@@ -1,5 +1,6 @@
 import cv2 as cv
 import pymurapi as mur
+import time
 
 auv = mur.mur_init()
 
@@ -65,11 +66,12 @@ def keep_x(yaw:float, X, additional_fwd: float = 0, time_to_keep: float = 0) -> 
         show(frame, 1)
 
 def defind_buoy():
+    #Функция возвращщает максимальный контур и его цвет, если контура не найдено - в цвет записывается "No contour", а в контур - "Unknown"
     cap = auv.get_image_front()
     hsv_image = cv.cvtColor(cap, cv.COLOR_BGR2HSV)
-    hsv_red = cv.inRange(hsv_image, min_red, max_red)
-    hsv_yellow = cv.inRange(hsv_image, min_yellow, max_yellow)
-    hsv_green = cv.inRange(hsv_image, min_green, max_green)
+    hsv_red = cv.inRange(hsv_image, Red_min, Red_max)
+    hsv_yellow = cv.inRange(hsv_image, Yellow_min, Yellow_max)
+    hsv_green = cv.inRange(hsv_image, Green_min, Green_max)
     Max_color = 0
     Red_contours, _ = cv.findContours(hsv_red, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
     Yellow_contours, _ = cv.findContours(hsv_yellow, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
@@ -87,18 +89,37 @@ def defind_buoy():
     for contour in Green_contours:
         green_list.append([cv.contourArea(contour), contour])
 
-    red_list.sort()
-    yellow_list.sort()
-    green_list.sort()
+    red_list.sort(reverse=True)
+    yellow_list.sort(reverse=True)
+    green_list.sort(reverse=True)
+    if len(red_list) > 0:
+        Max_red_contour = red_list[0][1]
+        Max_red_contour_size = red_list [0][0]
+    else:
+        Max_red_contour = 0
+        Max_red_contour_size = 0
+    if len(yellow_list) > 0:
+        Max_yellow_contour = yellow_list[0][1]
+        Max_yellow_contour_size = yellow_list[0][0]
+    else:
+        Max_yellow_contour = 0
+        Max_yellow_contour_size = 0
+    if len(green_list) > 0:
+        Max_green_contour = green_list[0][1]
+        Max_green_contour_size = green_list[0][0]
+    else:
+        Max_green_contour = 0
+        Max_green_contour_size = 0
+    Max_contour = 0
 
-    if red_list[0, 0] > yellow_list[0, 0] and red_list[0, 0] > green_list[0, 0]:
-        Max_contour = red_list[0, 1]
+    if Max_red_contour > Max_yellow_contour and Max_red_contour > Max_green_contour:
+        Max_contour = Max_red_contour_size
         Max_color = "Red"
-    elif yellow_list[0, 0] > red_list[0, 0] and yellow_list[0, 0] > green_list[0, 0]:
-        Max_contour = yellow_list[0, 1]
+    elif Max_yellow_contour > Max_red_contour and Max_yellow_contour > Max_green_contour:
+        Max_contour = Max_yellow_contour_size
         Max_color = "Yellow"
     else:
-        Max_contour = green_list[0, 1]
+        Max_contour = Max_green_contour_size
         Max_color = "Green"
     if Max_contour < 100:
         Max_contour = "Unknown"
@@ -112,7 +133,5 @@ def to_the_buoy():
     if x:
         keep_x(x,320,30,5)
     cv.waitKey(1)
-
-to_the_buoy(Red_min, Red_max)
-to_the_buoy(Yellow_min, Yellow_max)
-to_the_buoy(Green_min, Green_max)
+while True:
+    to_the_buoy()
